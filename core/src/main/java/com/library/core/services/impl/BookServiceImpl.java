@@ -2,17 +2,21 @@ package com.library.core.services.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.library.core.domain.dto.BookDto;
 import com.library.core.domain.entities.Book;
 import com.library.core.mappers.BookMapper;
+import com.library.core.mappers.LoanMapper;
+import com.library.core.mappers.impl.LoanMapperImpl;
 import com.library.core.repositories.BookRepository;
+import com.library.core.repositories.LoanRepository;
+import com.library.core.repositories.UserRepository;
 import com.library.core.services.BookService;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -56,28 +60,35 @@ public class BookServiceImpl implements BookService {
         return bookMapper.toDto(saved);
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public BookDto getBookById(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getBookById'");
+    public Optional<BookDto> getBookById(UUID id) {
+        return bookRepository.findById(id).map(bookMapper::toDto);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookDto> getAllBooks() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllBooks'");
+        return bookRepository.findAll().stream()
+                .map(bookMapper::toDto).toList();
     }
 
+    @Transactional
     @Override
     public BookDto updateBook(UUID id, BookDto updatedBook) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateBook'");
+        Book bookToUpdate = bookRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Book does not exist in database"));
+        bookToUpdate.setTitle(updatedBook.title());
+        bookToUpdate.setAuthor(updatedBook.author());
+        bookToUpdate.setAvailableCopies(updatedBook.availableCopies());
+        // Don't update loans as this is handled by LoansService
+        bookToUpdate.setLoanType(updatedBook.loanType());
+        return bookMapper.toDto(bookToUpdate);
     }
 
     @Override
     public void deleteBook(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteBook'");
+        bookRepository.deleteById(id);
     }
 
     @Override

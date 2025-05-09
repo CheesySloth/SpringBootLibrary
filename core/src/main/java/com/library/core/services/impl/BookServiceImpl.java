@@ -21,8 +21,8 @@ import com.library.core.services.BookService;
 @Service
 public class BookServiceImpl implements BookService {
 
-    private BookRepository bookRepository;
-    private BookMapper bookMapper;
+    private final BookRepository bookRepository;
+    private final BookMapper bookMapper;
 
     public BookServiceImpl(BookRepository bookRepository, BookMapper bookMapper) {
         this.bookRepository = bookRepository;
@@ -49,6 +49,8 @@ public class BookServiceImpl implements BookService {
     @Transactional(readOnly = true)
     @Override
     public Optional<BookDto> getBookById(UUID id) {
+        // Approach better when service reused in multiple contexts and caller needs
+        // flexibility
         return bookRepository.findById(id).map(bookMapper::toDto);
     }
 
@@ -112,15 +114,15 @@ public class BookServiceImpl implements BookService {
 
     private void validateBookDtoForCreation(BookDto bookDto) {
         if (null != bookDto.id()) {
-            throw new IllegalArgumentException("Book already has ID.");
+            throw new IllegalArgumentException("User already has ID.");
         }
 
         if (bookDto.title().isBlank()) {
-            throw new IllegalArgumentException("Title cannot be empty");
+            throw new IllegalArgumentException("Name cannot be empty");
         }
 
         if (bookDto.author().isBlank()) {
-            throw new IllegalArgumentException("Book must have an author.");
+            throw new IllegalArgumentException("Email must have an author.");
         }
 
         if (bookDto.loanType() == null) {

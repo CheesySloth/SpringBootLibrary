@@ -7,8 +7,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -105,7 +103,7 @@ public class Loan {
         return this.dueDate;
     }
 
-    public void setDueDate(LocalDate dueDate) {
+    private void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
 
@@ -117,14 +115,6 @@ public class Loan {
         this.returnDate = returnDate;
     }
 
-    public LoanType getLoanType() {
-        return this.loanType;
-    }
-
-    public void setLoanType(LoanType loanType) {
-        this.loanType = loanType;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == this)
@@ -134,12 +124,13 @@ public class Loan {
         }
         Loan loan = (Loan) o;
         return Objects.equals(id, loan.id) && Objects.equals(book, loan.book) && Objects.equals(user, loan.user)
-                && Objects.equals(loanDate, loan.loanDate) && Objects.equals(returnDate, loan.returnDate);
+                && Objects.equals(loanDate, loan.loanDate) && Objects.equals(dueDate, loan.dueDate)
+                && Objects.equals(returnDate, loan.returnDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, book, user, loanDate, returnDate);
+        return Objects.hash(id, book, user, loanDate, dueDate, returnDate);
     }
 
     @Override
@@ -149,6 +140,7 @@ public class Loan {
                 ", book='" + getBook() + "'" +
                 ", user='" + getUser() + "'" +
                 ", loanDate='" + getLoanDate() + "'" +
+                ", dueDate='" + getDueDate() + "'" +
                 ", returnDate='" + getReturnDate() + "'" +
                 "}";
     }

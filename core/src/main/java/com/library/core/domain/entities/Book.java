@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,15 +42,20 @@ public class Book {
     @JsonManagedReference
     private List<Loan> loans = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "loan_type", nullable = false)
+    private LoanType loanType;
+
     public Book() {
     }
 
-    public Book(UUID id, String title, String author, int availableCopies, List<Loan> loans) {
+    public Book(UUID id, String title, String author, int availableCopies, List<Loan> loans, LoanType loanType) {
         this.id = id;
         this.title = title;
         this.author = author;
         this.availableCopies = availableCopies;
         this.loans = loans;
+        this.loanType = loanType;
     }
 
     public UUID getId() {
@@ -91,29 +98,12 @@ public class Book {
         this.loans = loans;
     }
 
-    public Book id(UUID id) {
-        setId(id);
-        return this;
+    public LoanType getLoanType() {
+        return this.loanType;
     }
 
-    public Book title(String title) {
-        setTitle(title);
-        return this;
-    }
-
-    public Book author(String author) {
-        setAuthor(author);
-        return this;
-    }
-
-    public Book availableCopies(int availableCopies) {
-        setAvailableCopies(availableCopies);
-        return this;
-    }
-
-    public Book loans(List<Loan> loans) {
-        setLoans(loans);
-        return this;
+    public void setLoanType(LoanType loanType) {
+        this.loanType = loanType;
     }
 
     @Override
@@ -125,12 +115,13 @@ public class Book {
         }
         Book book = (Book) o;
         return Objects.equals(id, book.id) && Objects.equals(title, book.title) && Objects.equals(author, book.author)
-                && availableCopies == book.availableCopies && Objects.equals(loans, book.loans);
+                && availableCopies == book.availableCopies && Objects.equals(loans, book.loans)
+                && Objects.equals(loanType, book.loanType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, author, availableCopies, loans);
+        return Objects.hash(id, title, author, availableCopies, loans, loanType);
     }
 
     @Override
@@ -141,6 +132,7 @@ public class Book {
                 ", author='" + getAuthor() + "'" +
                 ", availableCopies='" + getAvailableCopies() + "'" +
                 ", loans='" + getLoans() + "'" +
+                ", loanType='" + getLoanType() + "'" +
                 "}";
     }
 

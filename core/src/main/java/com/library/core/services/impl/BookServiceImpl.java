@@ -11,11 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.library.core.domain.dto.BookDto;
 import com.library.core.domain.entities.Book;
 import com.library.core.mappers.BookMapper;
-import com.library.core.mappers.LoanMapper;
-import com.library.core.mappers.impl.LoanMapperImpl;
 import com.library.core.repositories.BookRepository;
-import com.library.core.repositories.LoanRepository;
-import com.library.core.repositories.UserRepository;
+
 import com.library.core.services.BookService;
 
 @Service

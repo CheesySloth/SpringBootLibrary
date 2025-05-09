@@ -49,6 +49,7 @@ public class LoanMapperImpl implements LoanMapper {
                 loan.getBook().getId(),
                 loan.getUser().getId(),
                 loan.getLoanDate(),
+                loan.getDueDate(),
                 loan.getReturnDate());
     }
 }

@@ -32,21 +32,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public BookDto createBook(BookDto bookDto) {
-        if (null != bookDto.id()) {
-            throw new IllegalArgumentException("Book already has ID.");
-        }
-
-        if (bookDto.title().isBlank()) {
-            throw new IllegalArgumentException("Title cannot be empty");
-        }
-
-        if (bookDto.author().isBlank()) {
-            throw new IllegalArgumentException("Book must have an author.");
-        }
-
-        if (bookDto.loanType() == null) {
-            throw new IllegalArgumentException("Book must have a loan type.");
-        }
+        validateBookDtoForCreation(bookDto);
 
         Book bookToSave = new Book(
                 null,
@@ -70,7 +56,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<BookDto> getAllBooks() {
         return bookRepository.findAll().stream()
-                .map(bookMapper::toDto).toList();
+                .map(bookMapper::toDto)
+                .toList();
     }
 
     @Transactional
@@ -83,7 +70,9 @@ public class BookServiceImpl implements BookService {
         bookToUpdate.setAvailableCopies(updatedBook.availableCopies());
         // Don't update loans as this is handled by LoansService
         bookToUpdate.setLoanType(updatedBook.loanType());
-        return bookMapper.toDto(bookToUpdate);
+
+        Book updated = bookRepository.save(bookToUpdate);
+        return bookMapper.toDto(updated);
     }
 
     @Override
@@ -91,22 +80,52 @@ public class BookServiceImpl implements BookService {
         bookRepository.deleteById(id);
     }
 
+    @Transactional
     @Override
     public void updateAvailability(UUID id, int change) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateAvailability'");
+        Book bookToUpdate = bookRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Book does not exist in database"));
+
+        int newNumberOfCopies = bookToUpdate.getAvailableCopies() + change;
+
+        if (newNumberOfCopies < 0)
+            throw new IllegalArgumentException("Cannot have a negative number of copies of a book.");
+
+        bookToUpdate.setAvailableCopies(newNumberOfCopies);
+
+        bookRepository.save(bookToUpdate);
     }
 
     @Override
     public List<BookDto> findBooksByTitle(String title) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findBooksByTitle'");
+        return bookRepository.findByTitleContainingIgnoreCase(title).stream()
+                .map(bookMapper::toDto)
+                .toList();
     }
 
     @Override
     public List<BookDto> findBooksByAuthor(String author) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findBooksByAuthor'");
+        return bookRepository.findByAuthorContainingIgnoreCase(author).stream()
+                .map(bookMapper::toDto)
+                .toList();
+    }
+
+    private void validateBookDtoForCreation(BookDto bookDto) {
+        if (null != bookDto.id()) {
+            throw new IllegalArgumentException("Book already has ID.");
+        }
+
+        if (bookDto.title().isBlank()) {
+            throw new IllegalArgumentException("Title cannot be empty");
+        }
+
+        if (bookDto.author().isBlank()) {
+            throw new IllegalArgumentException("Book must have an author.");
+        }
+
+        if (bookDto.loanType() == null) {
+            throw new IllegalArgumentException("Book must have a loan type.");
+        }
     }
 
 }

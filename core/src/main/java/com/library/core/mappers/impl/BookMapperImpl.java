@@ -31,7 +31,8 @@ public class BookMapperImpl implements BookMapper {
                         .map(loans -> loans.stream().map(
                                 loanMapper::fromDto)
                                 .toList())
-                        .orElseGet(ArrayList::new)
+                        .orElseGet(ArrayList::new),
+                bookDto.loanType()
 
         );
     }
@@ -47,7 +48,8 @@ public class BookMapperImpl implements BookMapper {
                         .map(loans -> loans.stream().map(
                                 loanMapper::toDto)
                                 .toList())
-                        .orElseGet(ArrayList::new));
+                        .orElseGet(ArrayList::new),
+                book.getLoanType());
     }
 
 }

@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,10 +40,23 @@ public class Loan {
     @Column(name = "loan_date", nullable = false)
     private LocalDate loanDate;
 
-    @Column(name = "return_date", nullable = false)
+    @Column(name = "due_date", nullable = false)
+    private LocalDate dueDate;
+
+    @Column(name = "return_date")
     private LocalDate returnDate;
 
     public Loan() {
+    }
+
+    public Loan(UUID id, Book book, User user, LocalDate loanDate) {
+        this.id = id;
+        this.book = book;
+        this.user = user;
+        this.loanDate = loanDate;
+        this.dueDate = loanDate.plusDays(book.getLoanType().getDuration());
+        this.returnDate = null;
+
     }
 
     public Loan(UUID id, Book book, User user, LocalDate loanDate, LocalDate returnDate) {
@@ -49,7 +64,9 @@ public class Loan {
         this.book = book;
         this.user = user;
         this.loanDate = loanDate;
+        this.dueDate = loanDate.plusDays(book.getLoanType().getDuration());
         this.returnDate = returnDate;
+
     }
 
     public UUID getId() {
@@ -84,6 +101,14 @@ public class Loan {
         this.loanDate = loanDate;
     }
 
+    public LocalDate getDueDate() {
+        return this.dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
     public LocalDate getReturnDate() {
         return this.returnDate;
     }
@@ -92,29 +117,12 @@ public class Loan {
         this.returnDate = returnDate;
     }
 
-    public Loan id(UUID id) {
-        setId(id);
-        return this;
+    public LoanType getLoanType() {
+        return this.loanType;
     }
 
-    public Loan book(Book book) {
-        setBook(book);
-        return this;
-    }
-
-    public Loan user(User user) {
-        setUser(user);
-        return this;
-    }
-
-    public Loan loanDate(LocalDate loanDate) {
-        setLoanDate(loanDate);
-        return this;
-    }
-
-    public Loan returnDate(LocalDate returnDate) {
-        setReturnDate(returnDate);
-        return this;
+    public void setLoanType(LoanType loanType) {
+        this.loanType = loanType;
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.library.core.domain.dto.LoanDto;
@@ -15,21 +16,29 @@ import com.library.core.mappers.LoanMapper;
 import com.library.core.repositories.BookRepository;
 import com.library.core.repositories.LoanRepository;
 import com.library.core.repositories.UserRepository;
+import com.library.core.services.BookService;
 import com.library.core.services.LoanService;
 
+@Service
 public class LoanServiceImpl implements LoanService {
 
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final LoanRepository loanRepository;
     private final LoanMapper loanMapper;
+    private final BookService bookService;
 
-    public LoanServiceImpl(BookRepository bookRepository, UserRepository userRepository, LoanRepository loanRepository,
-            LoanMapper loanMapper) {
+    public LoanServiceImpl(
+            BookRepository bookRepository,
+            UserRepository userRepository,
+            LoanRepository loanRepository,
+            LoanMapper loanMapper,
+            BookService bookService) {
         this.bookRepository = bookRepository;
         this.loanMapper = loanMapper;
         this.loanRepository = loanRepository;
         this.userRepository = userRepository;
+        this.bookService = bookService;
     }
 
     @Transactional
@@ -40,6 +49,9 @@ public class LoanServiceImpl implements LoanService {
                 .orElseThrow(() -> new IllegalArgumentException("Book not found."));
         User user = userRepository.findById(loanDto.userId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Update book availability
+        bookService.updateAvailability(loanDto.bookId(), -1);
 
         Loan loanToSave = new Loan(
                 null,
@@ -109,10 +121,22 @@ public class LoanServiceImpl implements LoanService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public void returnBook(UUID loanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'returnBook'");
+        Loan loanToSave = loanRepository.findById(loanId)
+                .orElseThrow(() -> new IllegalArgumentException("Loan not found."));
+
+        if (loanToSave.getReturnDate() != null) {
+            throw new IllegalStateException("This book has already been returned.");
+        }
+        // Set return date to today
+        loanToSave.setReturnDate(LocalDate.now());
+
+        // Increase book availability by 1
+        bookService.updateAvailability(loanToSave.getBook().getId(), 1);
+
+        loanRepository.save(loanToSave);
     }
 
     private void validateLoanDtoForCreation(LoanDto loanDto) {
@@ -121,16 +145,11 @@ public class LoanServiceImpl implements LoanService {
         }
 
         if (null == loanDto.bookId()) {
-            throw new IllegalArgumentException("Book cannot be null");
+            throw new IllegalArgumentException("Book ID must be provided to create a loan.");
         }
 
         if (null == loanDto.userId()) {
-            throw new IllegalArgumentException("User cannot be null.");
-        }
-
-        if (null == loanDto.loanDate()) {
-            throw new IllegalArgumentException("Loan date cannot be null.");
+            throw new IllegalArgumentException("User ID must be provided to create a loan.");
         }
     }
-
 }

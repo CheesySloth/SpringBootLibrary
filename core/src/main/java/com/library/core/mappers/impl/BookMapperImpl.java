@@ -3,6 +3,7 @@ package com.library.core.mappers.impl;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.library.core.domain.dto.BookDto;
@@ -13,6 +14,11 @@ import com.library.core.mappers.LoanMapper;
 @Component
 public class BookMapperImpl implements BookMapper {
     private LoanMapper loanMapper;
+
+    @Autowired
+    public BookMapperImpl(LoanMapper loanMapper) {
+        this.loanMapper = loanMapper;
+    }
 
     @Override
     public Book fromDto(BookDto bookDto) {

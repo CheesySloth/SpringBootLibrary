@@ -3,6 +3,7 @@ package com.library.core.controllers;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,8 @@ import com.library.core.domain.dto.LoanDto;
 import com.library.core.domain.dto.UserDto;
 import com.library.core.services.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping(path = "/users")
 public class UserController {
@@ -30,45 +33,47 @@ public class UserController {
 
     // CRUD methods
     @GetMapping
-    public List<UserDto> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping(path = "/{id}")
-    public UserDto getUser(@PathVariable("id") UUID id) {
-        return userService.getUserById(id);
+    public ResponseEntity<UserDto> getUser(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.createUser(userDto));
+    public ResponseEntity<UserDto> createUser(@RequestBody @Valid UserDto userDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userDto));
     }
 
     @PutMapping(path = "/{id}")
-    public UserDto updateUser(
+    public ResponseEntity<UserDto> updateUser(
             @PathVariable("id") UUID id,
-            @RequestBody UserDto userDto) {
-        return userService.updateUser(id, userDto);
+            @RequestBody @Valid UserDto userDto) {
+        return ResponseEntity.ok(userService.updateUser(id, userDto));
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteUser(@PathVariable("id") UUID id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") UUID id) {
         userService.deleteUser(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     // Business Logic
     @GetMapping(path = "/{id}/loans")
-    public List<LoanDto> getLoans(@PathVariable("id") UUID id) {
-        return userService.getLoansForUser(id);
+    public ResponseEntity<List<LoanDto>> getLoans(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(userService.getLoansForUser(id));
     }
 
     @GetMapping(path = "/search_name")
-    public List<UserDto> getUsersByName(@RequestParam String name) {
-        return userService.getUsersByName(name);
+    public ResponseEntity<List<UserDto>> getUsersByName(@RequestParam String name) {
+        return ResponseEntity.ok(userService.getUsersByName(name));
     }
 
     @GetMapping(path = "/search_email")
-    public UserDto getUserByEmail(@RequestParam String email) {
-        return userService.getUserByEmail(email);
+    public ResponseEntity<UserDto> getUserByEmail(@RequestParam String email) {
+        return ResponseEntity.ok(userService.getUserByEmail(email));
     }
+
 }

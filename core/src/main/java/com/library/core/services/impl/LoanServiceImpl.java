@@ -46,11 +46,11 @@ public class LoanServiceImpl implements LoanService {
     @Transactional
     @Override
     public LoanDto createLoan(LoanDto loanDto) {
-        validateLoanDtoForCreation(loanDto);
+        // validateLoanDtoForCreation(loanDto);
         Book book = bookRepository.findById(loanDto.bookId())
-                .orElseThrow(() -> new BookNotFoundException("Book not found."));
+                .orElseThrow(() -> new BookNotFoundException("Book not found with id " + loanDto.bookId()));
         User user = userRepository.findById(loanDto.userId())
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id " + loanDto.userId()));
 
         // Update book availability
         bookService.updateAvailability(loanDto.bookId(), -1);
@@ -68,8 +68,7 @@ public class LoanServiceImpl implements LoanService {
     @Transactional(readOnly = true)
     @Override
     public LoanDto getLoanById(UUID id) {
-        Loan target = loanRepository.findById(id).orElseThrow(() -> new LoanNotFoundException("Loan not found"));
-        return loanMapper.toDto(target);
+        return loanMapper.toDto(findLoanOrThrow(id));
     }
 
     @Transactional(readOnly = true)
@@ -84,14 +83,13 @@ public class LoanServiceImpl implements LoanService {
     @Transactional
     @Override
     public LoanDto updateLoan(UUID id, LoanDto loanDto) {
-        Loan loanToUpdate = loanRepository.findById(id)
-                .orElseThrow(() -> new LoanNotFoundException("Loan not found."));
+        Loan loanToUpdate = findLoanOrThrow(id);
 
         Book book = bookRepository.findById(loanDto.bookId())
-                .orElseThrow(() -> new BookNotFoundException("Book not found."));
+                .orElseThrow(() -> new BookNotFoundException("Book not found with id " + loanDto.bookId()));
 
         User user = userRepository.findById(loanDto.userId())
-                .orElseThrow(() -> new UserNotFoundException("User not found."));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id " + loanDto.userId()));
 
         loanToUpdate.setBook(book);
         loanToUpdate.setUser(user);
@@ -107,6 +105,7 @@ public class LoanServiceImpl implements LoanService {
         loanRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<LoanDto> getLoansByUserId(UUID userId) {
         return loanRepository.findByUserId(userId)
@@ -115,6 +114,7 @@ public class LoanServiceImpl implements LoanService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<LoanDto> getLoansByBookId(UUID bookId) {
         return loanRepository.findByBookId(bookId)
@@ -126,8 +126,7 @@ public class LoanServiceImpl implements LoanService {
     @Transactional
     @Override
     public void returnBook(UUID loanId) {
-        Loan loanToSave = loanRepository.findById(loanId)
-                .orElseThrow(() -> new LoanNotFoundException("Loan not found."));
+        Loan loanToSave = findLoanOrThrow(loanId);
 
         if (loanToSave.getReturnDate() != null) {
             throw new IllegalStateException("This book has already been returned.");
@@ -142,17 +141,24 @@ public class LoanServiceImpl implements LoanService {
         loanRepository.save(loanToSave);
     }
 
-    private void validateLoanDtoForCreation(LoanDto loanDto) {
-        if (null != loanDto.id()) {
-            throw new IllegalArgumentException("Loan already has ID.");
-        }
+    // private void validateLoanDtoForCreation(LoanDto loanDto) {
+    // if (null != loanDto.id()) {
+    // throw new IllegalArgumentException("Loan already has ID.");
+    // }
 
-        if (null == loanDto.bookId()) {
-            throw new IllegalArgumentException("Book ID must be provided to create a loan.");
-        }
+    // if (null == loanDto.bookId()) {
+    // throw new IllegalArgumentException("Book ID must be provided to create a
+    // loan.");
+    // }
 
-        if (null == loanDto.userId()) {
-            throw new IllegalArgumentException("User ID must be provided to create a loan.");
-        }
+    // if (null == loanDto.userId()) {
+    // throw new IllegalArgumentException("User ID must be provided to create a
+    // loan.");
+    // }
+    // }
+
+    private Loan findLoanOrThrow(UUID id) {
+        return loanRepository.findById(id)
+                .orElseThrow(() -> new LoanNotFoundException("Loan not found with id " + id));
     }
 }

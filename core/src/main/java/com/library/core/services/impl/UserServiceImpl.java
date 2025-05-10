@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto createUser(UserDto userDto) {
-        validateUserDtoForCreation(userDto);
+        // validateUserDtoForCreation(userDto);
 
         User userToSave = new User(
                 null,
@@ -47,12 +47,10 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public UserDto getUserById(UUID id) {
-        // Approach better for clear expectations that "missing value means error"
-        return userMapper.toDto(
-                userRepository.findById(id)
-                        .orElseThrow(() -> new UserNotFoundException("Id not in database.")));
+        return userMapper.toDto(findUserOrThrow(id));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<UserDto> getAllUsers() {
         return userRepository.findAll()
@@ -64,8 +62,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto updateUser(UUID id, UserDto updatedUser) {
-        User userToUpdate = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User does not exist in database"));
+        User userToUpdate = findUserOrThrow(id);
         userToUpdate.setName(updatedUser.name());
         userToUpdate.setEmail(updatedUser.email());
 
@@ -78,23 +75,25 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<LoanDto> getLoansForUser(UUID userId) {
-        User targetUser = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User does not exist in database."));
+        User targetUser = findUserOrThrow(userId);
         return targetUser.getLoans()
                 .stream()
                 .map(loanMapper::toDto)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDto getUserByEmail(String email) {
         User targetUser = userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new UserNotFoundException("No user found with this email address."));
+                .orElseThrow(() -> new UserNotFoundException("No user found with this email address: " + email));
         return userMapper.toDto(targetUser);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<UserDto> getUsersByName(String name) {
         return userRepository.findByNameIgnoreCase(name)
@@ -103,22 +102,27 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
-    private void validateUserDtoForCreation(UserDto userDto) {
-        if (null != userDto.id()) {
-            throw new IllegalArgumentException("User already has ID.");
-        }
+    // private void validateUserDtoForCreation(UserDto userDto) {
+    // if (null != userDto.id()) {
+    // throw new IllegalArgumentException("User already has ID.");
+    // }
 
-        if (userDto.name().isBlank()) {
-            throw new IllegalArgumentException("Name cannot be empty");
-        }
+    // if (userDto.name().isBlank()) {
+    // throw new IllegalArgumentException("Name cannot be empty");
+    // }
 
-        if (userDto.email().isBlank()) {
-            throw new IllegalArgumentException("Email cannot be empty.");
-        }
+    // if (userDto.email().isBlank()) {
+    // throw new IllegalArgumentException("Email cannot be empty.");
+    // }
 
-        if (userRepository.findByEmailIgnoreCase(userDto.email()).isPresent()) {
-            throw new IllegalArgumentException("Email is already in use");
-        }
+    // if (userRepository.findByEmailIgnoreCase(userDto.email()).isPresent()) {
+    // throw new IllegalArgumentException("Email is already in use");
+    // }
+    // }
+
+    private User findUserOrThrow(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
     }
 
 }

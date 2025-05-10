@@ -1,9 +1,10 @@
 package com.library.core.controllers;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -12,67 +13,73 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.library.core.domain.dto.BookDto;
-import com.library.core.mappers.BookMapper;
 import com.library.core.services.BookService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/books")
 public class BookController {
     private BookService bookService;
-    private BookMapper bookMapper;
 
     public BookController(BookService bookService) {
         this.bookService = bookService;
-        this.bookMapper = null;
     }
 
     // CRUD methods
     @GetMapping
-    public List<BookDto> getAllBooks() {
-        return bookService.getAllBooks();
+    public ResponseEntity<List<BookDto>> getAllBooks() {
+        return ResponseEntity.ok(bookService.getAllBooks());
     }
 
-    @GetMapping(path = "/{book_id}")
-    public Optional<BookDto> getBook(@PathVariable("book_id") UUID id) {
-        return bookService.getBookById(id);
+    @GetMapping(path = "/{id}")
+    public ResponseEntity<BookDto> getBook(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(bookService.getBookById(id));
     }
 
     @PostMapping
-    public BookDto createBook(@RequestBody BookDto bookDto) {
-        return bookService.createBook(bookDto);
+    public ResponseEntity<BookDto> createBook(@RequestBody @Valid BookDto bookDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookService.createBook(bookDto));
     }
 
-    @PutMapping(path = "/{book_id}")
-    public void updateBook(
-            @PathVariable("book_id") UUID id,
-            @RequestBody BookDto bookDto) {
-        bookService.updateBook(id, bookDto);
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<BookDto> updateBook(
+            @PathVariable("id") UUID id,
+            @RequestBody @Valid BookDto bookDto) {
+        return ResponseEntity.ok(bookService.updateBook(id, bookDto));
     }
 
-    @DeleteMapping(path = "/{book_id}")
-    public void deleteBook(@PathVariable("book_id") UUID id) {
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable("id") UUID id) {
         bookService.deleteBook(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     // Business Logic methods
-    @GetMapping
-    public List<BookDto> findBooksByTitle(@RequestBody String title) {
-        return bookService.findBooksByTitle(title);
+    @GetMapping("/search") // Cannot have multiple get mappings to the same address
+    public ResponseEntity<List<BookDto>> findBooksByTitleOrAuthor(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String author) {
+
+        if (title != null)
+            return ResponseEntity.ok(bookService.findBooksByTitle(title));
+        if (author != null)
+            return ResponseEntity.ok(bookService.findBooksByAuthor(author));
+        // fallback
+        return ResponseEntity.ok(bookService.getAllBooks());
     }
 
-    @GetMapping
-    public List<BookDto> findBooksByAuthor(@RequestBody String author) {
-        return bookService.findBooksByAuthor(author);
-    }
-
-    @PatchMapping("{book_id}/availableCopies")
-    public void updateBookAvailability(
-            @PathVariable("book_id") UUID id,
+    @PatchMapping("{id}/copies")
+    public ResponseEntity<Void> updateBookAvailability(
+            @PathVariable("id") UUID id,
             @RequestBody int change) {
         bookService.updateAvailability(id, change);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
     }
 
 }

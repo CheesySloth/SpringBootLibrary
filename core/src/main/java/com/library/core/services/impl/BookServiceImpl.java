@@ -29,7 +29,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public BookDto createBook(BookDto bookDto) {
-        validateBookDtoForCreation(bookDto);
+        // validateBookDtoForCreation(bookDto);
 
         Book bookToSave = new Book(
                 null,
@@ -46,9 +46,7 @@ public class BookServiceImpl implements BookService {
     @Transactional(readOnly = true)
     @Override
     public BookDto getBookById(UUID id) {
-
-        return bookRepository.findById(id).map(bookMapper::toDto)
-                .orElseThrow(() -> new BookNotFoundException("Book not found."));
+        return bookMapper.toDto(findBookOrThrow(id));
     }
 
     @Transactional(readOnly = true)
@@ -62,8 +60,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public BookDto updateBook(UUID id, BookDto updatedBook) {
-        Book bookToUpdate = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException("Book does not exist in database"));
+        Book bookToUpdate = findBookOrThrow(id);
         bookToUpdate.setTitle(updatedBook.title());
         bookToUpdate.setAuthor(updatedBook.author());
         bookToUpdate.setAvailableCopies(updatedBook.availableCopies());
@@ -82,8 +79,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public void updateAvailability(UUID id, int change) {
-        Book bookToUpdate = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException("Book does not exist in database"));
+        Book bookToUpdate = findBookOrThrow(id);
 
         int newNumberOfCopies = bookToUpdate.getAvailableCopies() + change;
 
@@ -109,22 +105,27 @@ public class BookServiceImpl implements BookService {
                 .toList();
     }
 
-    private void validateBookDtoForCreation(BookDto bookDto) {
-        if (null != bookDto.id()) {
-            throw new IllegalArgumentException("User already has ID.");
-        }
+    // private void validateBookDtoForCreation(BookDto bookDto) {
+    // if (null != bookDto.id()) {
+    // throw new IllegalArgumentException("User already has ID.");
+    // }
 
-        if (bookDto.title().isBlank()) {
-            throw new IllegalArgumentException("Name cannot be empty");
-        }
+    // if (bookDto.title().isBlank()) {
+    // throw new IllegalArgumentException("Name cannot be empty");
+    // }
 
-        if (bookDto.author().isBlank()) {
-            throw new IllegalArgumentException("Email must have an author.");
-        }
+    // if (bookDto.author().isBlank()) {
+    // throw new IllegalArgumentException("Email must have an author.");
+    // }
 
-        if (bookDto.loanType() == null) {
-            throw new IllegalArgumentException("Book must have a loan type.");
-        }
+    // if (bookDto.loanType() == null) {
+    // throw new IllegalArgumentException("Book must have a loan type.");
+    // }
+    // }
+
+    private Book findBookOrThrow(UUID id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException("Book not found with id " + id));
     }
 
 }

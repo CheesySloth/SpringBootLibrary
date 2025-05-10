@@ -3,6 +3,7 @@ package com.library.core.controllers;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,14 +43,14 @@ public class LoanController {
 
     @PostMapping
     public ResponseEntity<LoanDto> createLoan(@RequestBody LoanDto loanDto) {
-        return ResponseEntity.ok(loanService.createLoan(loanDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(loanService.createLoan(loanDto));
     }
 
     @PutMapping(path = "/{id}")
-    public LoanDto updateLoan(
+    public ResponseEntity<LoanDto> updateLoan(
             @PathVariable("id") UUID id,
             @RequestBody LoanDto loanDto) {
-        return loanService.updateLoan(id, loanDto);
+        return ResponseEntity.ok(loanService.updateLoan(id, loanDto));
     }
 
     @DeleteMapping(path = "/{id}")

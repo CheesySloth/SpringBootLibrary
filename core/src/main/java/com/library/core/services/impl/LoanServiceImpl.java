@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.library.core.domain.dto.LoanDto;
-import com.library.core.domain.dto.UserDto;
 import com.library.core.domain.entities.Loan;
 import com.library.core.domain.entities.Book;
 import com.library.core.domain.entities.User;
+import com.library.core.exception.BookNotFoundException;
+import com.library.core.exception.LoanNotFoundException;
+import com.library.core.exception.UserNotFoundException;
 import com.library.core.mappers.LoanMapper;
 import com.library.core.repositories.BookRepository;
 import com.library.core.repositories.LoanRepository;
@@ -46,9 +48,9 @@ public class LoanServiceImpl implements LoanService {
     public LoanDto createLoan(LoanDto loanDto) {
         validateLoanDtoForCreation(loanDto);
         Book book = bookRepository.findById(loanDto.bookId())
-                .orElseThrow(() -> new IllegalArgumentException("Book not found."));
+                .orElseThrow(() -> new BookNotFoundException("Book not found."));
         User user = userRepository.findById(loanDto.userId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         // Update book availability
         bookService.updateAvailability(loanDto.bookId(), -1);
@@ -66,7 +68,7 @@ public class LoanServiceImpl implements LoanService {
     @Transactional(readOnly = true)
     @Override
     public LoanDto getLoanById(UUID id) {
-        Loan target = loanRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Loan not found"));
+        Loan target = loanRepository.findById(id).orElseThrow(() -> new LoanNotFoundException("Loan not found"));
         return loanMapper.toDto(target);
     }
 
@@ -83,13 +85,13 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public LoanDto updateLoan(UUID id, LoanDto loanDto) {
         Loan loanToUpdate = loanRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Loan not found."));
+                .orElseThrow(() -> new LoanNotFoundException("Loan not found."));
 
         Book book = bookRepository.findById(loanDto.bookId())
-                .orElseThrow(() -> new IllegalArgumentException("Book not found."));
+                .orElseThrow(() -> new BookNotFoundException("Book not found."));
 
         User user = userRepository.findById(loanDto.userId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+                .orElseThrow(() -> new UserNotFoundException("User not found."));
 
         loanToUpdate.setBook(book);
         loanToUpdate.setUser(user);
@@ -125,11 +127,12 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public void returnBook(UUID loanId) {
         Loan loanToSave = loanRepository.findById(loanId)
-                .orElseThrow(() -> new IllegalArgumentException("Loan not found."));
+                .orElseThrow(() -> new LoanNotFoundException("Loan not found."));
 
         if (loanToSave.getReturnDate() != null) {
             throw new IllegalStateException("This book has already been returned.");
         }
+
         // Set return date to today
         loanToSave.setReturnDate(LocalDate.now());
 

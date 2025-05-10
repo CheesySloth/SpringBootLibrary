@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.library.core.domain.dto.LoanDto;
 import com.library.core.domain.dto.UserDto;
 import com.library.core.domain.entities.User;
+import com.library.core.exception.UserNotFoundException;
 import com.library.core.mappers.LoanMapper;
 import com.library.core.mappers.UserMapper;
 import com.library.core.repositories.UserRepository;
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService {
         // Approach better for clear expectations that "missing value means error"
         return userMapper.toDto(
                 userRepository.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException("Id not in database.")));
+                        .orElseThrow(() -> new UserNotFoundException("Id not in database.")));
     }
 
     @Override
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(UUID id, UserDto updatedUser) {
         User userToUpdate = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User does not exist in database"));
+                .orElseThrow(() -> new UserNotFoundException("User does not exist in database"));
         userToUpdate.setName(updatedUser.name());
         userToUpdate.setEmail(updatedUser.email());
 
@@ -80,7 +81,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<LoanDto> getLoansForUser(UUID userId) {
         User targetUser = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User does not exist in database."));
+                .orElseThrow(() -> new UserNotFoundException("User does not exist in database."));
         return targetUser.getLoans()
                 .stream()
                 .map(loanMapper::toDto)
@@ -90,7 +91,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserByEmail(String email) {
         User targetUser = userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new IllegalArgumentException("No user found with this email address."));
+                .orElseThrow(() -> new UserNotFoundException("No user found with this email address."));
         return userMapper.toDto(targetUser);
     }
 

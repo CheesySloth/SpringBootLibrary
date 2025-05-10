@@ -2,7 +2,6 @@ package com.library.core.services.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -10,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.library.core.domain.dto.BookDto;
 import com.library.core.domain.entities.Book;
+import com.library.core.exception.BookNotFoundException;
 import com.library.core.mappers.BookMapper;
 import com.library.core.repositories.BookRepository;
 
@@ -48,7 +48,7 @@ public class BookServiceImpl implements BookService {
     public BookDto getBookById(UUID id) {
 
         return bookRepository.findById(id).map(bookMapper::toDto)
-                .orElseThrow(() -> new IllegalArgumentException("Book not found."));
+                .orElseThrow(() -> new BookNotFoundException("Book not found."));
     }
 
     @Transactional(readOnly = true)
@@ -63,7 +63,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDto updateBook(UUID id, BookDto updatedBook) {
         Book bookToUpdate = bookRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Book does not exist in database"));
+                .orElseThrow(() -> new BookNotFoundException("Book does not exist in database"));
         bookToUpdate.setTitle(updatedBook.title());
         bookToUpdate.setAuthor(updatedBook.author());
         bookToUpdate.setAvailableCopies(updatedBook.availableCopies());
@@ -83,7 +83,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public void updateAvailability(UUID id, int change) {
         Book bookToUpdate = bookRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Book does not exist in database"));
+                .orElseThrow(() -> new BookNotFoundException("Book does not exist in database"));
 
         int newNumberOfCopies = bookToUpdate.getAvailableCopies() + change;
 

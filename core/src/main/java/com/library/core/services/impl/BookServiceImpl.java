@@ -45,10 +45,10 @@ public class BookServiceImpl implements BookService {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<BookDto> getBookById(UUID id) {
-        // Approach better when service reused in multiple contexts and caller needs
-        // flexibility
-        return bookRepository.findById(id).map(bookMapper::toDto);
+    public BookDto getBookById(UUID id) {
+
+        return bookRepository.findById(id).map(bookMapper::toDto)
+                .orElseThrow(() -> new IllegalArgumentException("Book not found."));
     }
 
     @Transactional(readOnly = true)

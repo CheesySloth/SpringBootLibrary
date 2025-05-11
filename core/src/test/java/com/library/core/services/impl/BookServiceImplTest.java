@@ -42,6 +42,7 @@ class BookServiceImplTest {
                 emptyLoanList,
                 LoanType.SHORT_TERM);
 
+        // For reference
         Book bookToSave = new Book(
                 null,
                 "The Hobbit",

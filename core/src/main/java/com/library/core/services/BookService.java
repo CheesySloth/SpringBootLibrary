@@ -1,7 +1,6 @@
 package com.library.core.services;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.library.core.domain.dto.BookDto;
@@ -9,7 +8,7 @@ import com.library.core.domain.dto.BookDto;
 public interface BookService {
     BookDto createBook(BookDto bookDto);
 
-    Optional<BookDto> getBookById(UUID id);
+    BookDto getBookById(UUID id);
 
     List<BookDto> getAllBooks();
 

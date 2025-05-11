@@ -13,6 +13,6 @@ import com.library.core.domain.entities.User;
 public interface UserRepository extends JpaRepository<User, UUID> {
     public Optional<User> findByEmailIgnoreCase(String email);
 
-    public List<User> findByNameIgnoreCase(String name);
+    public List<User> findByNameContainingIgnoreCase(String name);
 
 }

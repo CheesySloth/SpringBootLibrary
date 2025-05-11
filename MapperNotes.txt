@@ -1,0 +1,25 @@
+✅ 3. Mapper Redundancy Explained
+
+You're manually converting entities to DTOs and vice versa using nearly identical logic across mappers. The redundancy includes:
+
+    Each mapper reconstructs entire graphs (e.g., Loan -> Book -> Loan or User -> Loan -> User)—risking infinite loops or performance issues.
+
+    You're calling repositories inside mappers (LoanMapper) to build entities, which violates separation of concerns—repository logic should ideally stay in services.
+
+    The Optional.ofNullable(...).map(...).orElseGet(...) block is repeated in almost every mapper.
+
+Suggested Improvements:
+
+    Use MapStruct – Automatically generates mapper implementations, reducing boilerplate:
+
+    @Mapper(componentModel = "spring")
+    public interface BookMapper {
+        Book toEntity(BookDto dto);
+        BookDto toDto(Book book);
+    }
+
+    Avoid mapping full nested objects unless needed – Consider using LoanSummaryDto instead of full nested LoanDto inside UserDto or BookDto.
+
+    Separate Input vs Output DTOs – For create/update, you often don’t need nested loan info.
+
+Would you like an example of how to refactor one of your mappers using MapStruct or a flatter DTO structure?

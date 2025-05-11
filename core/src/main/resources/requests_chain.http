@@ -1,0 +1,126 @@
+# Sample HTTP requests for Library System API
+
+### Create a User
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "Alice Jones",
+  "email": "aliceJ@example.com",
+  "loans": []
+}
+
+### Create a Book
+POST http://localhost:8080/books
+Content-Type: application/json
+
+{
+  "title": "1989",
+  "author": "George Orwell",
+  "availableCopies": 3,
+  "loanType": "SHORT_TERM",
+  "loans": []
+}
+
+### Get All Users
+GET http://localhost:8080/users
+
+### Get All Books
+GET http://localhost:8080/books
+
+### Get User by ID
+GET http://localhost:8080/users/c52cbe02-2685-43af-9824-2b8f47daea06
+
+### Get Book by ID
+GET http://localhost:8080/books/b610e01c-4ea9-4436-b60d-f90c2e9401dc
+
+### Update User
+PUT http://localhost:8080/users/c52cbe02-2685-43af-9824-2b8f47daea06
+Content-Type: application/json
+
+{
+  "id": "c52cbe02-2685-43af-9824-2b8f47daea06",
+  "name": "Alice Smith",
+  "email": "alice.smith@example.com",
+  "loans": []
+}
+
+### Update Book
+PUT http://localhost:8080/books/b610e01c-4ea9-4436-b60d-f90c2e9401dc
+Content-Type: application/json
+
+{
+  "id": "b610e01c-4ea9-4436-b60d-f90c2e9401dc",
+  "title": "Animal Farm",
+  "author": "George Orwell",
+  "availableCopies": 2,
+  "loanType": "SHORT_TERM",
+  "loans": []
+}
+
+### Search Book by Title
+GET http://localhost:8080/books/search?title=Animal Farm
+
+### Search Book by Author
+GET http://localhost:8080/books/search?author=r
+
+### Create Loan
+POST http://localhost:8080/loans
+Content-Type: application/json
+
+{
+  "bookId": "b610e01c-4ea9-4436-b60d-f90c2e9401dc",
+  "userId": "c52cbe02-2685-43af-9824-2b8f47daea06",
+  "loanDate": "2025-05-10"
+}
+
+### Get All Loans
+GET http://localhost:8080/loans
+
+### Get Loan by ID
+GET http://localhost:8080/loans/488229bf-d921-4f1d-8ce9-391fb8e7de22
+
+### Update Loan
+PUT http://localhost:8080/loans/488229bf-d921-4f1d-8ce9-391fb8e7de22
+Content-Type: application/json
+
+{
+  "id": "488229bf-d921-4f1d-8ce9-391fb8e7de22",
+  "bookId": "2106ec65-9346-468a-b381-fd5d0fc78481",
+  "userId": "c52cbe02-2685-43af-9824-2b8f47daea06",
+  "loanDate": "2025-05-10",
+  "returnDate": "2025-05-20"
+}
+
+### Return a Book
+PATCH http://localhost:8080/loans/c039d6ef-7d33-46de-b280-05767d5d2bd9
+
+### Update Book Copies
+PATCH http://localhost:8080/books/b610e01c-4ea9-4436-b60d-f90c2e9401dc/copies
+Content-Type: application/json
+
+5
+
+### Update Book Copies (negative)
+PATCH http://localhost:8080/books/b610e01c-4ea9-4436-b60d-f90c2e9401dc/copies
+Content-Type: application/json
+
+1
+
+### Get Loans for User
+GET http://localhost:8080/users/c52cbe02-2685-43af-9824-2b8f47daea06/loans
+
+### Search User by Name
+GET http://localhost:8080/users/search_name?name=Alice+Smith
+
+### Search User by Email
+GET http://localhost:8080/users/search_email?email=alice@example.com
+
+### Delete Loan
+DELETE http://localhost:8080/loans/488229bf-d921-4f1d-8ce9-391fb8e7de22
+
+### Delete User
+DELETE http://localhost:8080/users/c52cbe02-2685-43af-9824-2b8f47daea06
+
+### Delete Book
+DELETE http://localhost:8080/books/b610e01c-4ea9-4436-b60d-f90c2e9401dc

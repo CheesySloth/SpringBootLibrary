@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.library.core.domain.dto.LoanDto;
 import com.library.core.services.LoanService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping(path = "/loans")
 public class LoanController {
@@ -32,49 +33,51 @@ public class LoanController {
 
     // CRUD methods
     @GetMapping
-    public List<LoanDto> getAllLoans() {
-        return loanService.getAllLoans();
+    public ResponseEntity<List<LoanDto>> getAllLoans() {
+        return ResponseEntity.ok(loanService.getAllLoans());
     }
 
     @GetMapping(path = "/{id}")
-    public LoanDto getLoan(@PathVariable("id") UUID id) {
-        return loanService.getLoanById(id);
+    public ResponseEntity<LoanDto> getLoan(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(loanService.getLoanById(id));
     }
 
     @PostMapping
-    public ResponseEntity<LoanDto> createLoan(@RequestBody LoanDto loanDto) {
+    public ResponseEntity<LoanDto> createLoan(@RequestBody @Valid LoanDto loanDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(loanService.createLoan(loanDto));
     }
 
     @PutMapping(path = "/{id}")
     public ResponseEntity<LoanDto> updateLoan(
             @PathVariable("id") UUID id,
-            @RequestBody LoanDto loanDto) {
+            @RequestBody @Valid LoanDto loanDto) {
         return ResponseEntity.ok(loanService.updateLoan(id, loanDto));
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteLoan(@PathVariable("id") UUID id) {
+    public ResponseEntity<Void> deleteLoan(@PathVariable("id") UUID id) {
         loanService.deleteLoan(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     // Business Logic
     @GetMapping(path = "/search")
-    public List<LoanDto> getLoansByUserOrBookId(
-            @RequestParam UUID userId,
-            @RequestParam UUID bookId) {
+    public ResponseEntity<List<LoanDto>> getLoansByUserOrBookId(
+            @RequestParam(required = false) UUID userId,
+            @RequestParam(required = false) UUID bookId) {
         if (null != userId)
-            return loanService.getLoansByUserId(userId);
+            return ResponseEntity.ok(loanService.getLoansByUserId(userId));
         if (null != bookId)
-            return loanService.getLoansByBookId(bookId);
+            return ResponseEntity.ok(loanService.getLoansByBookId(bookId));
 
         // Fallback
         return getAllLoans();
     }
 
     @PatchMapping(path = "/{id}")
-    public void returnBook(@PathVariable("id") UUID loanId) {
+    public ResponseEntity<Void> returnBook(@PathVariable("id") UUID loanId) {
         loanService.returnBook(loanId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }

@@ -1,0 +1,74 @@
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "Alice Johnson",
+  "email": "alice@example.com",
+  "loans": []
+}
+###
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "   ",
+  "email": "invalid-email",
+  "loans": []
+}
+###
+POST http://localhost:8080/books
+Content-Type: application/json
+
+{
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "availableCopies": 3,
+  "loans": [],
+  "loanType": "SHORT_TERM"
+}
+###
+POST http://localhost:8080/books
+Content-Type: application/json
+
+{
+  "title": "",
+  "author": "Someone",
+  "availableCopies": -5,
+  "loans": [],
+  "loanType": "SHORT_TERM"
+}
+
+###
+POST http://localhost:8080/loans
+Content-Type: application/json
+
+{
+  "bookId": "2106ec65-9346-468a-b381-fd5d0fc78481",
+  "userId": "273451c6-bf21-4e8f-96e2-41ec26dd7cad",
+  "loanDate": "2025-05-08"
+}
+
+###
+POST http://localhost:8080/loans
+Content-Type: application/json
+
+{
+  "bookId": null,
+  "userId": null,
+  "loanDate": null
+}
+
+### Update user
+PUT http://localhost:8080/users/273451c6-bf21-4e8f-96e2-41ec26dd7cad
+Content-Type: application/json
+
+{
+  "name": "Alice Johnson Updated",
+  "email": "alice.updated@example.com",
+  "loans": []
+}
+###
+GET http://localhost:8080/books
+###
+
+GET http://localhost:8080/users/273451c6-bf21-4e8f-96e2-41ec26dd7cad

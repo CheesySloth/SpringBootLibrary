@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public List<UserDto> getUsersByName(String name) {
-        return userRepository.findByNameIgnoreCase(name)
+        return userRepository.findByNameContainingIgnoreCase(name)
                 .stream()
                 .map(userMapper::toDto)
                 .toList();

@@ -10,11 +10,15 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.Objects;
 
 @Entity
@@ -31,6 +35,12 @@ public class User {
 
     @Column(name = "email", nullable = false)
     private String email;
+
+    @NotBlank
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
@@ -70,32 +80,28 @@ public class User {
         this.email = email;
     }
 
+    public String getPassword() {
+        return this.password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Role getRole() {
+        return this.role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
     public List<Loan> getLoans() {
         return this.loans;
     }
 
     public void setLoans(List<Loan> loans) {
         this.loans = loans;
-    }
-
-    public User id(UUID id) {
-        setId(id);
-        return this;
-    }
-
-    public User name(String name) {
-        setName(name);
-        return this;
-    }
-
-    public User email(String email) {
-        setEmail(email);
-        return this;
-    }
-
-    public User loans(List<Loan> loans) {
-        setLoans(loans);
-        return this;
     }
 
     @Override

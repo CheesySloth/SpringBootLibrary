@@ -79,7 +79,7 @@ name: Required (non-blank)
 
 email: Required (valid format, unique)
 
-### Loan
+### Loan
 
 bookId: Required (UUID)
 
